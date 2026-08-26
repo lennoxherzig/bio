@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@font-face { font-family: "Array"; src: url("https://cdn.fontshare.com/wf/4QBZHM3FOPYBI67YBLLWZV6ZYIUQTKEE/RXSUFPNEA6YXGQDMHMP3OODY6UWXRJBM/C6VM2RT4EU2NNT5XZWVYHR7WOIOGM4EU.woff2") format("woff2"); font-display: swap; font-style: normal; font-weight: 400; }
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #0a0a0a; }
+button, a { -webkit-tap-highlight-color: transparent; }
+.profile-page { position: relative; width: 100%; height: 100dvh; overflow: hidden; color: #bab0a5; font-family: "Array", "Trebuchet MS", sans-serif; }
+.background-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(6px); transform: scale(1.025); }
+.background-shade { position: absolute; inset: 0; background: rgba(0, 0, 0, .25); }
+.enter-screen { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; width: 100%; border: 0; padding: 0; cursor: pointer; background: rgba(0, 0, 0, .56); color: #fff; font: 400 31px/1 Arial, sans-serif; backdrop-filter: blur(12px); transition: opacity .75s ease, visibility .75s ease; }
+.enter-screen--hidden { visibility: hidden; opacity: 0; pointer-events: none; }
+.profile-wrap { position: relative; z-index: 2; display: grid; place-items: center; width: 100%; height: 100%; padding: 16px; opacity: 0; transform: scale(.94); transition: opacity .7s ease, transform .7s cubic-bezier(.16,1,.3,1); }
+.profile-wrap--visible { opacity: 1; transform: scale(1); }
+.profile-card { position: relative; width: min(704px, calc(100vw - 32px)); height: 393px; padding: 26px; border: 2px solid rgba(255,255,255,.3); border-radius: 20px; background: rgba(27,27,27,.2); backdrop-filter: blur(8px); box-shadow: 0 18px 70px rgba(0,0,0,.15); }
+.identity-row { display: flex; align-items: center; gap: 14px; height: 130px; padding-top: 10px; transform: translateY(-10px); }
+.profile-avatar { flex: 0 0 auto; width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
+.identity-copy { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.name-line { display: flex; align-items: center; gap: 12px; }
+.name-line h1 { margin: 0; color: #bab0a4; font-size: 36.5px; font-weight: 400; line-height: 41px; }
+.premium-wrap { position: relative; display: inline-flex; width: 25px; height: 25px; color: #36dce2; }
+.premium-wrap svg { width: 100%; height: 100%; filter: drop-shadow(0 0 8px rgba(54,220,226,.55)); }
+.bio { min-height: 17px; margin: 0; font-size: 16px; line-height: 17px; color: #bab0a4; }
+.joined { margin: 0; font-size: 13px; line-height: 14px; color: rgba(186,175,164,.65); }
+.discord-presence { position: relative; display: flex; align-items: center; width: 100%; height: 100px; margin-top: 22px; padding: 10px 12px; border-radius: 25px; background: rgba(24,24,24,.22); }
+.discord-avatar-wrap { position: relative; width: 74px; height: 74px; flex: 0 0 74px; transform: translateY(-5px); }
+.discord-avatar { width: 74px; height: 74px; border-radius: 50%; object-fit: cover; }
+.online-dot { position: absolute; right: 3px; bottom: 3px; width: 18px; height: 18px; border-radius: 50%; background: #1dbb63; }
+.status-online { background: #23a55a; }
+.status-idle { background: #f0b232; }
+.status-dnd { background: #f23f43; }
+.status-offline { background: #80848e; }
+.discord-copy { min-width: 0; margin-left: 10px; transform: translateY(-5px); }
+.discord-name-row { display: flex; align-items: center; height: 22px; gap: 5px; }
+.discord-name { font-size: 16px; color: #bab0a4; }
+.discord-badge { width: 20px; height: 20px; object-fit: contain; }
+.activity-type, .activity-title { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #bab0a4; }
+.activity-type { font-size: 14px; line-height: 17px; font-weight: 600; }
+.activity-title { max-width: 450px; font-size: 13px; line-height: 16px; }
+.activity-art { width: 70px; height: 70px; margin-left: auto; border-radius: 10px; object-fit: cover; transform: translateY(-3px); }
+.social-links { display: flex; align-items: center; justify-content: center; gap: 9px; margin-top: 30px; }
+.social-links button { position: relative; display: grid; place-items: center; width: 35px; height: 35px; padding: 0; border: 0; background: transparent; color: #9f998e; cursor: pointer; transition: transform .15s ease,color .15s ease; }
+.social-links button:hover { color: #c4bdb1; transform: translateY(-2px); }
+.social-links svg { width: 35px; height: 35px; }
+.wallet-tooltip { position: absolute; left: 50%; bottom: calc(100% + 9px); z-index: 20; padding: 7px 10px; border-radius: 12px; background: rgba(30,28,27,.94); box-shadow: 0 5px 14px rgba(0,0,0,.22); color: #fff; font: 600 11px/1.3 Arial,sans-serif; white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none; transform: translate(-50%,4px); transition: opacity .15s ease,transform .15s ease,visibility .15s ease; }
+.litecoin-button:hover .wallet-tooltip, .wallet-tooltip--visible { opacity: 1; visibility: visible; transform: translate(-50%,0); }
+.view-count { position: absolute; left: 18px; bottom: 12px; display: flex; align-items: center; gap: 6px; color: #bab0a4; font-size: 13px; line-height: 16px; }
+.view-count svg { width: 17px; height: 17px; }
+.tooltip { position: absolute; left: 50%; bottom: calc(100% + 7px); z-index: 20; display: block; padding: 8px 11px; border: 0; border-radius: 14px; background: rgba(30,28,27,.94); box-shadow: 0 5px 14px rgba(0,0,0,.22); color: #fff; font: 600 12px/1.35 Arial,sans-serif; white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none; transform: translate(-50%,5px) scale(.96); transform-origin: 50% 100%; transition: opacity .16s ease,transform .16s ease,visibility .16s ease; }
+.premium-wrap:hover .tooltip { opacity: 1; visibility: visible; transform: translate(-50%,0) scale(1); }
+@media (max-width: 620px) { .profile-card { height: auto; min-height: 390px; padding: 22px; } .identity-row { height: auto; transform: none; } .profile-avatar { width: 92px; height: 92px; } .name-line h1 { font-size: 29px; line-height: 34px; } .discord-presence { margin-top: 20px; } .activity-art { width: 54px; height: 54px; } .activity-title { max-width: 42vw; } .social-links { margin-bottom: 30px; } }
+@media (prefers-reduced-motion: reduce) { .enter-screen, .profile-wrap, .social-links button { transition: none; } }
