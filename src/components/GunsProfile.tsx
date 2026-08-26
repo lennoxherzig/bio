@@ -67,17 +67,8 @@ export default function GunsProfile() {
   }, []);
 
   useEffect(() => {
-    if (!entered) return;
-    let count = 2;
-    let direction = 1;
-    const timer = window.setInterval(() => {
-      count += direction;
-      if (count === 5) direction = -1;
-      if (count === 1) direction = 1;
-      document.title = `${"@".repeat(count)}MrPiesel | guns.lol`;
-    }, 420);
-    return () => window.clearInterval(timer);
-  }, [entered]);
+    document.title = profile.title;
+  }, []);
 
   useEffect(() => {
     return () => {

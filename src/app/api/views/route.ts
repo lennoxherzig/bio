@@ -35,6 +35,7 @@ type ViewData = {
 };
 
 let counterQueue = Promise.resolve();
+let memoryViews: ViewData | null = null;
 
 function hash(value: string) {
   return createHmac("sha256", HASH_SECRET).update(value).digest("hex");
@@ -48,6 +49,8 @@ function visitorIp(request: NextRequest) {
 }
 
 async function loadViews(): Promise<ViewData> {
+  if (memoryViews) return memoryViews;
+
   try {
     const data = JSON.parse(await readFile(DATA_FILE, "utf8")) as Partial<ViewData>;
     return {
@@ -56,6 +59,16 @@ async function loadViews(): Promise<ViewData> {
     };
   } catch {
     return { count: STARTING_VIEWS, identifiers: [] };
+  }
+}
+
+async function saveViews(data: ViewData) {
+  memoryViews = data;
+  try {
+    await mkdir(DATA_DIRECTORY, { recursive: true });
+    await writeFile(DATA_FILE, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+  } catch {
+    // Project files are read-only on Vercel; keep the in-memory count for this instance.
   }
 }
 
@@ -117,8 +130,7 @@ async function countView(request: NextRequest) {
       data.count += 1;
       data.identifiers.push(visitorHash);
       if (ipHash) data.identifiers.push(ipHash);
-      await mkdir(DATA_DIRECTORY, { recursive: true });
-      await writeFile(DATA_FILE, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+      await saveViews(data);
     }
 
     return { count: data.count, visitorId };
@@ -128,6 +140,7 @@ async function countView(request: NextRequest) {
 }
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   let result: Awaited<ReturnType<typeof countView>>;
