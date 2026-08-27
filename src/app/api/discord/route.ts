@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 const DISCORD_USER_ID = "1532859848096747615";
 const GRUX_API = `https://grux.audibert.dev/user/${DISCORD_USER_ID}`;
 const GRUX_ACTIVITY_API = `https://grux.audibert.dev/activity/${DISCORD_USER_ID}`;
+const JAPI_USER = `https://japi.rest/discord/v1/user/${DISCORD_USER_ID}`;
 
 type GruxResponse = {
   success: boolean;
@@ -21,6 +22,8 @@ type GruxResponse = {
         description?: string | null;
         id?: string;
       }>;
+      banner?: string | null;
+      banner_image?: string | null;
       bio?: string | null;
       connected_accounts?: Array<{
         link?: string | null;
@@ -39,12 +42,28 @@ type GruxResponse = {
   };
 };
 
+type JapiResponse = {
+  data?: {
+    banner?: string | null;
+    bannerURL?: string | null;
+  };
+};
+
+function discordBannerUrl(hash?: string | null, fallbackUrl?: string | null) {
+  if (hash) {
+    const extension = hash.startsWith("a_") ? "gif" : "png";
+    return `https://cdn.discordapp.com/banners/${DISCORD_USER_ID}/${hash}.${extension}?size=1024`;
+  }
+
+  return fallbackUrl ?? null;
+}
+
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
   try {
-    const [response, activityResponse] = await Promise.all([
+    const [response, activityResponse, japiResponse] = await Promise.all([
       fetch(GRUX_API, {
         cache: "no-store",
         signal: AbortSignal.timeout(6000),
@@ -53,6 +72,10 @@ export async function GET() {
         cache: "no-store",
         signal: AbortSignal.timeout(6000),
       }),
+      fetch(JAPI_USER, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(6000),
+      }).catch(() => null),
     ]);
 
     if (!response.ok) {
@@ -68,6 +91,12 @@ export async function GET() {
     if (!gruxProfile?.username) {
       return NextResponse.json({ available: false, userId: DISCORD_USER_ID });
     }
+
+    const japiPayload = japiResponse?.ok ? await japiResponse.json() as JapiResponse : null;
+    const banner = discordBannerUrl(
+      gruxProfile.banner ?? japiPayload?.data?.banner,
+      gruxProfile.banner_image ?? japiPayload?.data?.bannerURL,
+    );
 
     const spotify = liveData?.spotify ?? data?.spotify;
     const activities = liveData?.activity ?? data?.activity ?? [];
@@ -92,6 +121,7 @@ export async function GET() {
       username: gruxProfile.username,
       displayName: gruxProfile.display_name ?? gruxProfile.username,
       avatar: gruxProfile.avatar_image ?? null,
+      banner,
       status: (liveData?.status ?? data?.status) === "invisible" ? "offline" : liveData?.status ?? data?.status ?? "offline",
       description: gruxProfile.bio ?? null,
       badges: (gruxProfile.badges ?? []).flatMap((badge) => badge.badge_image

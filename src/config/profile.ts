@@ -6,5 +6,5 @@ export const profile = {
   joined: "Joined almost 3 years ago",
   enterText: "click for sex",
   title: "CyberCrime",
-  discordInvite: "https://discord.com/invite/yQ5uxyrphG",
+  discordInvite: "https://discord.gg/NdQC2upnvp",
 } as const;
