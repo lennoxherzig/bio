@@ -18,6 +18,51 @@ type DiscordPresence = {
   username?: string;
 };
 
+const DISCORD_EMOJI_REGEX = /<(a)?:([a-zA-Z0-9_~]+):([0-9]+)>/g;
+
+function renderDiscordText(text: string | null | undefined): React.ReactNode {
+  if (!text) return null;
+
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  DISCORD_EMOJI_REGEX.lastIndex = 0;
+
+  while ((match = DISCORD_EMOJI_REGEX.exec(text)) !== null) {
+    const [fullMatch, isAnimated, name, id] = match;
+    const matchIndex = match.index;
+
+    if (matchIndex > lastIndex) {
+      parts.push(text.slice(lastIndex, matchIndex));
+    }
+
+    const ext = isAnimated ? "gif" : "webp";
+    const src = `https://cdn.discordapp.com/emojis/${id}.${ext}?size=48&quality=lossless`;
+
+    parts.push(
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        key={`${id}-${matchIndex}`}
+        className="discord-custom-emoji"
+        src={src}
+        alt={`:${name}:`}
+        title={`:${name}:`}
+        loading="lazy"
+        draggable={false}
+      />
+    );
+
+    lastIndex = matchIndex + fullMatch.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts;
+}
+
 export default function GunsProfile() {
   const [entered, setEntered] = useState(false);
   const [discord, setDiscord] = useState<DiscordPresence | null>(null);
@@ -175,7 +220,7 @@ export default function GunsProfile() {
                 <h1>{discord?.displayName ? `@${discord.displayName}` : profile.displayName}</h1>
                 <span className="premium-wrap" aria-label="Premium"><DiamondIcon /><span className="tooltip">Premium</span></span>
               </div>
-              <p className="bio">{discord?.description || "Discord profile"}</p>
+              <p className="bio">{renderDiscordText(discord?.description || "Discord profile")}</p>
               <p className="joined">{profile.joined}</p>
             </div>
           </header>
@@ -208,8 +253,8 @@ export default function GunsProfile() {
                   <img key={badge.image} className="discord-badge" src={badge.image} alt={badge.description} title={badge.description} />
                 ))}
               </div>
-              <p className="activity-type">{discord?.activity?.label ?? "Discord status"}</p>
-              <p className="activity-title">{discord?.activity?.title ?? discord?.description ?? statusText}</p>
+              <p className="activity-type">{renderDiscordText(discord?.activity?.label ?? "Discord status")}</p>
+              <p className="activity-title">{renderDiscordText(discord?.activity?.title ?? discord?.description ?? statusText)}</p>
             </div>
             {discord?.activity?.image ? (
               // eslint-disable-next-line @next/next/no-img-element

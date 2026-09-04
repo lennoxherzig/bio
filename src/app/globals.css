@@ -19,7 +19,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .name-line h1 { margin: 0; color: #bab0a4; font-size: 36.5px; font-weight: 400; line-height: 41px; }
 .premium-wrap { position: relative; display: inline-flex; width: 25px; height: 25px; color: #36dce2; }
 .premium-wrap svg { width: 100%; height: 100%; filter: drop-shadow(0 0 8px rgba(54,220,226,.55)); }
-.bio { min-height: 17px; margin: 0; font-size: 16px; line-height: 17px; color: #bab0a4; }
+.bio { min-height: 17px; margin: 0; font-size: 16px; line-height: 21px; color: #bab0a4; }
+.discord-custom-emoji { display: inline-block; width: 1.25em; height: 1.25em; vertical-align: -0.22em; object-fit: contain; margin: 0 2px; }
 .joined { margin: 0; font-size: 13px; line-height: 14px; color: rgba(186,175,164,.65); }
 .discord-presence { position: relative; display: flex; align-items: center; width: 100%; height: 100px; margin-top: 22px; padding: 10px 12px; border-radius: 25px; overflow: hidden; isolation: isolate; background: rgba(24,24,24,.22); }
 .discord-banner { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
