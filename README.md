@@ -2,9 +2,12 @@
 
 A high-performance Next.js bio link page inspired by Guns.lol featuring live Discord presence, custom emoji rendering, background video/image support, click-to-enter audio playback, and a persistent view counter.
 
+👤 **Created by**: **Lennox-Maxim Thomas Herzig** • Discord: [`herzig.thomas`](https://discord.com/users/1544060965803532340)
+
 ---
 
 ## 📑 Table of Contents
+- [👤 Author & Discord Contact](#-author--discord-contact)
 - [1. Discord Profile & Presence Setup](#1-discord-profile--presence-setup)
   - [Changing Your Discord ID](#changing-your-discord-id)
   - [Live Rich Presence & Status (Grux)](#live-rich-presence--status-grux)
@@ -146,3 +149,15 @@ This repository is pre-configured for instant zero-configuration deployment to [
    - In Vercel, go to **Storage** → **Marketplace** → **Upstash Redis** and link a database.
    - Under **Project Settings → Environment Variables**, add:
      - `VIEW_HASH_SECRET`: Any random secret string (used to hash visitor IPs).
+
+---
+
+## 👤 Author & Discord Contact
+
+| Field | Details |
+| :--- | :--- |
+| **Real Name** | Lennox-Maxim Thomas Herzig |
+| **Discord Username** | `herzig.thomas` |
+| **Discord User ID** | `1544060965803532340` |
+| **Discord Profile Link** | [https://discord.com/users/1544060965803532340](https://discord.com/users/1544060965803532340) |
+
