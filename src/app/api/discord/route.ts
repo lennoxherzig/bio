@@ -4,6 +4,8 @@ const DISCORD_USER_ID = "1544060965803532340";
 const GRUX_API = `https://grux.audibert.dev/user/${DISCORD_USER_ID}`;
 const GRUX_ACTIVITY_API = `https://grux.audibert.dev/activity/${DISCORD_USER_ID}`;
 const JAPI_USER = `https://japi.rest/discord/v1/user/${DISCORD_USER_ID}`;
+const BANNER_API = `https://avatar-cyan.vercel.app/api/banner/${DISCORD_USER_ID}`;
+const FALLBACK_BANNER = `https://cdn.discordapp.com/banners/1544060965803532340/a_c670ecfa8afdf39ab1748f3fd5eeefd0.gif?size=1024`;
 
 type GruxResponse = {
   success: boolean;
@@ -53,13 +55,18 @@ type JapiResponse = {
   };
 };
 
+type BannerApiResponse = {
+  id?: string;
+  bannerUrl?: string | null;
+};
+
 function discordBannerUrl(hash?: string | null, fallbackUrl?: string | null) {
+  if (fallbackUrl) return fallbackUrl;
   if (hash) {
     const extension = hash.startsWith("a_") ? "gif" : "png";
     return `https://cdn.discordapp.com/banners/${DISCORD_USER_ID}/${hash}.${extension}?size=1024`;
   }
-
-  return fallbackUrl ?? null;
+  return null;
 }
 
 export const dynamic = "force-dynamic";
@@ -67,7 +74,7 @@ export const runtime = "nodejs";
 
 export async function GET() {
   try {
-    const [response, activityResponse, japiResponse] = await Promise.all([
+    const [response, activityResponse, japiResponse, bannerResponse] = await Promise.all([
       fetch(GRUX_API, {
         cache: "no-store",
         signal: AbortSignal.timeout(6000),
@@ -80,9 +87,15 @@ export async function GET() {
         cache: "no-store",
         signal: AbortSignal.timeout(6000),
       }).catch(() => null),
+      fetch(BANNER_API, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(6000),
+      }).catch(() => null),
     ]);
 
     const japiPayload = japiResponse?.ok ? ((await japiResponse.json()) as JapiResponse) : null;
+    const bannerPayload = bannerResponse?.ok ? ((await bannerResponse.json()) as BannerApiResponse) : null;
+    const liveBanner = bannerPayload?.bannerUrl ?? (DISCORD_USER_ID === "1544060965803532340" ? FALLBACK_BANNER : null);
 
     if (!response || !response.ok) {
       if (japiPayload?.data?.username) {
@@ -92,7 +105,7 @@ export async function GET() {
           username: japiPayload.data.username,
           displayName: japiPayload.data.global_name ?? japiPayload.data.username,
           avatar: japiPayload.data.avatarURL ?? null,
-          banner: japiPayload.data.bannerURL ?? null,
+          banner: liveBanner ?? japiPayload.data.bannerURL ?? null,
           status: "offline",
           description: null,
           badges: [],
@@ -120,7 +133,7 @@ export async function GET() {
           username: japiPayload.data.username,
           displayName: japiPayload.data.global_name ?? japiPayload.data.username,
           avatar: japiPayload.data.avatarURL ?? null,
-          banner: japiPayload.data.bannerURL ?? null,
+          banner: liveBanner ?? japiPayload.data.bannerURL ?? null,
           status: "offline",
           description: null,
           badges: [],
@@ -132,10 +145,12 @@ export async function GET() {
       return NextResponse.json({ available: false, userId: DISCORD_USER_ID });
     }
 
-    const banner = discordBannerUrl(
-      gruxProfile.banner ?? japiPayload?.data?.banner,
-      gruxProfile.banner_image ?? japiPayload?.data?.bannerURL,
-    );
+    const banner =
+      liveBanner ??
+      discordBannerUrl(
+        gruxProfile.banner ?? japiPayload?.data?.banner,
+        gruxProfile.banner_image ?? japiPayload?.data?.bannerURL,
+      );
 
     const spotify = liveData?.spotify ?? data?.spotify;
     const activities = liveData?.activity ?? data?.activity ?? [];
