@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-const DISCORD_USER_ID = "1532859848096747615";
+const DISCORD_USER_ID = "1544060965803532340";
 const GRUX_API = `https://grux.audibert.dev/user/${DISCORD_USER_ID}`;
 const GRUX_ACTIVITY_API = `https://grux.audibert.dev/activity/${DISCORD_USER_ID}`;
 const JAPI_USER = `https://japi.rest/discord/v1/user/${DISCORD_USER_ID}`;
@@ -46,6 +46,10 @@ type JapiResponse = {
   data?: {
     banner?: string | null;
     bannerURL?: string | null;
+    id?: string;
+    username?: string;
+    avatarURL?: string | null;
+    global_name?: string | null;
   };
 };
 
@@ -67,32 +71,67 @@ export async function GET() {
       fetch(GRUX_API, {
         cache: "no-store",
         signal: AbortSignal.timeout(6000),
-      }),
+      }).catch(() => null),
       fetch(GRUX_ACTIVITY_API, {
         cache: "no-store",
         signal: AbortSignal.timeout(6000),
-      }),
+      }).catch(() => null),
       fetch(JAPI_USER, {
         cache: "no-store",
         signal: AbortSignal.timeout(6000),
       }).catch(() => null),
     ]);
 
-    if (!response.ok) {
+    const japiPayload = japiResponse?.ok ? ((await japiResponse.json()) as JapiResponse) : null;
+
+    if (!response || !response.ok) {
+      if (japiPayload?.data?.username) {
+        return NextResponse.json({
+          available: true,
+          userId: DISCORD_USER_ID,
+          username: japiPayload.data.username,
+          displayName: japiPayload.data.global_name ?? japiPayload.data.username,
+          avatar: japiPayload.data.avatarURL ?? null,
+          banner: japiPayload.data.bannerURL ?? null,
+          status: "offline",
+          description: null,
+          badges: [],
+          connectedAccounts: [],
+          activity: null,
+          provider: "japi",
+        });
+      }
       return NextResponse.json({ available: false, userId: DISCORD_USER_ID });
     }
 
-    const payload = await response.json() as GruxResponse;
+    const payload = (await response.json()) as GruxResponse;
     const data = payload.success ? payload.data : null;
-    const activityPayload = activityResponse.ok ? await activityResponse.json() as GruxResponse : null;
+    const activityPayload = (activityResponse && activityResponse.ok)
+      ? ((await activityResponse.json()) as GruxResponse)
+      : null;
     const liveData = activityPayload?.success ? activityPayload.data : null;
     const gruxProfile = data?.profile;
 
     if (!gruxProfile?.username) {
+      if (japiPayload?.data?.username) {
+        return NextResponse.json({
+          available: true,
+          userId: DISCORD_USER_ID,
+          username: japiPayload.data.username,
+          displayName: japiPayload.data.global_name ?? japiPayload.data.username,
+          avatar: japiPayload.data.avatarURL ?? null,
+          banner: japiPayload.data.bannerURL ?? null,
+          status: "offline",
+          description: null,
+          badges: [],
+          connectedAccounts: [],
+          activity: null,
+          provider: "japi",
+        });
+      }
       return NextResponse.json({ available: false, userId: DISCORD_USER_ID });
     }
 
-    const japiPayload = japiResponse?.ok ? await japiResponse.json() as JapiResponse : null;
     const banner = discordBannerUrl(
       gruxProfile.banner ?? japiPayload?.data?.banner,
       gruxProfile.banner_image ?? japiPayload?.data?.bannerURL,
